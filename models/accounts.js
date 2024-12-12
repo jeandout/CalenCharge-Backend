@@ -15,6 +15,6 @@ const accountsSchema = mongoose.Schema({
     charges: [chargesSchema]
 }, { timestamps: true });
 
-const Account = mongoose.model('Account', accountsSchema);
+const Account = mongoose.model('accounts', accountsSchema);
 
 module.exports = Account;
