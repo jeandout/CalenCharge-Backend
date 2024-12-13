@@ -25,13 +25,4 @@ router.get('/user', passport.authenticate('jwt', { session: false }), async (req
 
 });
 
-<<<<<<< HEAD
-//get pour toute la base 
-//post 
-
 module.exports = router;
-
-//GET all accounts info
-=======
-module.exports = router;
->>>>>>> 34ed40f5d12830499137efb3d8248664ed2238d4
