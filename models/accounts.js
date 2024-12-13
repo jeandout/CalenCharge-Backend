@@ -1,16 +1,17 @@
 const mongoose = require('mongoose');
-
+//{ "amount": "42", "chargeType": 3, "date": "2024-07-20T22:00:00.000Z", "name": "Abonnement Canard PC", "priority": false, "recurrence": 1, "recurrenceList": [6, 9, 0, 3] },
 const chargesSchema = mongoose.Schema({
-    name: {String, required: true },  
-    amount: {Number, required: true },
-    type: String,
-    recurrence: {String, enum: ['monthly', 'quarterly', 'semi-annual', 'yearly'], required: true },
-    first_date: {String, required: true },
-    priority: { Boolean, default: false }
-}, { _id: false }); // desactives la génération automatique d'un champ ID mais à voir avec l'équipe
+    name: String,  
+    amount: Number,
+    chargeType: Number,
+    recurrence: Number,
+    recurrenceList : [Number],
+    date: String,
+    priority: Boolean
+}); //, { _id: false } desactives la génération automatique d'un champ ID mais à voir avec l'équipe
 
 const accountSchema = mongoose.Schema({
-    name: {String, required: true },
+    name: String,
     icon: String,
     charges: [chargesSchema]
 });

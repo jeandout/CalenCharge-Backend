@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const User = require('../models/users');
+const Account = require('../models/accounts');
 require('dotenv').config();
 
 const router = express.Router();
@@ -12,19 +13,34 @@ const SECRET_KEY = process.env.JWT_SECRET_KEY;
 router.post('/signup', async (req, res) => {
   const { email, password, store } = req.body;
 
-  //POST to import all store
-
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({result:false, message: 'Email déjà utilisé' });
     }
 
+    let accounts=[];
+
+    if(store.accounts.length>0){
+
+      for (const account of store.accounts) {
+        const newAccount = new Account({
+          name: account.name,
+          icon: account.icon,
+          charges: account.charges,
+        });
+        await newAccount.save();
+        accounts.push(newAccount._id);
+      }
+      
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ email, password: hashedPassword });
+
+    const newUser = new User({ email, password: hashedPassword, settings:store.settings, accounts });
     await newUser.save();
 
-    const token = jwt.sign({ id: newUser._id }, SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign({ id: newUser._id, email }, SECRET_KEY, { expiresIn: '1h' });
 
     res.status(201).json({result:true, message: 'Inscription réussie', token });
   } catch (err) {
@@ -47,7 +63,7 @@ router.post('/signin', async (req, res) => {
       return res.status(401).json({result:false, message: 'Email ou mot de passe incorrect' });
     }
 
-    const token = jwt.sign({ id: user._id }, SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id, email }, SECRET_KEY, { expiresIn: '1h' });
 
     res.json({result:true, message: 'Connexion réussie', token });
   } catch (err) {
