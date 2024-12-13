@@ -24,13 +24,17 @@ router.post('/signup', async (req, res) => {
     let accounts=[];
 
     if(store.accounts.length>0){
-      store.accounts.forEach(account=>{
+      store.accounts.forEach(async(account)=>{
         const newAccount = new Account({
           name:account.name,
           icon:account.icon,
           charges:account.charges
         })
-        newAccount.save().then(()=>accounts.push(newAccount._id))
+        await newAccount.save();
+        accounts.push(newAccount._id);
+        console.log('account added');
+
+        //newAccount.save().then(()=>{accounts.push(newAccount._id); console.log('account added')})
       })
     }
 
