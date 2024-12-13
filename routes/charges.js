@@ -6,9 +6,6 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-//get pour toute la base 
-//post 
-
 module.exports = router;
 
-//GET all accounts info
+//CRUD on charges

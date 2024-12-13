@@ -6,7 +6,7 @@ const userSchema = mongoose.Schema({
     google_credentials: String,
     settings: Object,
     token: String,
-    accounts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account', }]
+    accounts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'accounts', }]
 });
 
 const User = mongoose.model('users', userSchema);

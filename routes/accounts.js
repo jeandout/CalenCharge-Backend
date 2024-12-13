@@ -6,9 +6,16 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-//get pour toute la base 
-//post 
+//account/new
+
+//acount/update
+
+//account/delete
+
+
+
+
 
 module.exports = router;
 
-//GET all accounts info
+//CRUD on accounts
