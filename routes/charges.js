@@ -17,7 +17,8 @@ router.get('/', (req, res) => {
       //   format.push(el)
       // }
       // console.log(format)
-      res.json({ result: true, obj: data.accounts.obj });
+      res.json({ result: true, obj: data
+       });
     } else {
       res.json({ result: false, error: 'User not found' });
     }
