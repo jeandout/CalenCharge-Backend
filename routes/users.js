@@ -40,7 +40,7 @@ router.post('/signup', async (req, res) => {
     const newUser = new User({ email, password: hashedPassword, settings:store.settings, accounts });
     await newUser.save();
 
-    const token = jwt.sign({ id: newUser._id, email }, SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign({ id: newUser._id }, SECRET_KEY, { expiresIn: '1h' });
 
     res.status(201).json({result:true, message: 'Inscription réussie', token });
   } catch (err) {
@@ -63,7 +63,7 @@ router.post('/signin', async (req, res) => {
       return res.status(401).json({result:false, message: 'Email ou mot de passe incorrect' });
     }
 
-    const token = jwt.sign({ id: user._id, email }, SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id}, SECRET_KEY, { expiresIn: '1h' });
 
     res.json({result:true, message: 'Connexion réussie', token });
   } catch (err) {
