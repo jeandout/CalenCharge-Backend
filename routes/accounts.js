@@ -8,4 +8,4 @@ router.get('/', function(req, res, next) {
 
 module.exports = router;
 
-//GET all accounts info
+//CRUD on accounts

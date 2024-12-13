@@ -13,7 +13,7 @@ const accountSchema = mongoose.Schema({
     name: {String, required: true },
     icon: String,
     charges: [chargesSchema]
-}, { timestamps: true });
+});
 
 const Account = mongoose.model('accounts', accountSchema);
 

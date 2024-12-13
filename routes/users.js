@@ -10,7 +10,9 @@ const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 // Route d'inscription (sign-up)
 router.post('/signup', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, store } = req.body;
+
+  //POST to import all store
 
   try {
     const existingUser = await User.findOne({ email });
