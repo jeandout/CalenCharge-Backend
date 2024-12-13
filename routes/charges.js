@@ -1,30 +1,47 @@
 var express = require('express');
 var router = express.Router();
 
+const jwt = require('jsonwebtoken');
+const passport = require('passport');
+
 const User = require('../models/users');
 
 
 //CRUD on charges
 
-router.get('/', (req, res) => {
+// router.get('/', (req, res) => {
 
-  User.find().populate('accounts').then(data => {
+//   User.find().populate('accounts').then(data => {
 
-    if (data) {
-      //afficher un compte
-      res.json({
-        result: true, obj: data
-        //afficher une charge
-        // res.json({ result: true, obj: data[0].accounts[0].charges[0]
-      });
-    } else {
-      res.json({ result: false, error: 'User not found' });
-    }
-  })
+//     if (data) {
+//       //afficher un compte
+//       res.json({
+//         result: true, obj: data
+//         //afficher une charge
+//         // res.json({ result: true, obj: data[0].accounts[0].charges[0]
+//       });
+//     } else {
+//       res.json({ result: false, error: 'User not found' });
+//     }
+//   })
+
+// });
+
+router.get('/', passport.authenticate('jwt', { session: false }), async (req, res) => {
+
+
+
+  try {
+    const data = await User.find().populate('accounts')
+    res.status(200).json({ result: true, data });
+
+  } catch (err) {
+    res.status(500).json({ result: false, error: err.message });
+  }
+
 
 
 });
-
 
 //charge new
 //post body 
@@ -62,7 +79,7 @@ router.put('/update', (req, res) => {
 
       if (data.accounts.find(e => e.name == req.body.account)) { //si le compte existe
 
-        if((data.accounts.find(e => e.name == req.body.account)).find(e => e.name == req.body.charge)){
+        if ((data.accounts.find(e => e.name == req.body.account)).find(e => e.name == req.body.charge)) {
           //update charge with req.body.charge
         } else {
           res.json({ result: false, error: 'Charge does not exist' });
