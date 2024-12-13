@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const chargesSchema = mongoose.Schema({
-    name: { required: true },   
+    name: { String, required: true },   
     amount: { required: true },
     type: String,
     recurrence: { enum: ['monthly', 'quarterly', 'semi-annual', 'yearly'], required: true },
