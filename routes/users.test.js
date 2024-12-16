@@ -1,19 +1,15 @@
 const request = require('supertest');
-const app = require('./app');
+const app = require('../app.js');
 
-it('GET /products', async () => {
- const res = await request(app).get('/products');
+it('POST /users/signup', async () => {
 
- expect(res.statusCode).toBe(200);
- expect(res.body.stock).toEqual(['iPhone', 'iPad', 'iPod']);
-});
-
-it('POST /users', async () => {
-    const res = await request(app).post('/users').send({
+    const res = await request(app).post('/users/signup').send({
       email: 'john@gmail.com',
       password: 'azerty123',
+      store:[]
     });
    
     expect(res.statusCode).toBe(200);
     expect(res.body.result).toBe(true);
+    expect(res.body).toHaveProperty('token');
    });
