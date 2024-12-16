@@ -52,12 +52,8 @@ router.put('/update', passport.authenticate('jwt', { session: false }), async (r
       const accountId = (user.accounts.find(e => e.name == account[0].name))._id
       console.log(accountId)
       const data = await Account.findById(accountId)
-      const chargeToDelete = data.charges.find(e => e.name == oldCharge.name)
-      const chargeToDeleteId = data.charges.id(chargeToDelete.id)
-      if (chargeToDeleteId){
-        chargeToDeleteId.remove()
-        await data.save()
-      }
+      data.charges.$pull(oldCharge)
+       data.save()
       // data.charges = data.charges.map(e =>
       //   e.name === oldCharge.name && e = updatedCharge
       // );
