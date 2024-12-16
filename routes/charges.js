@@ -22,17 +22,17 @@ router.get('/', passport.authenticate('jwt', { session: false }), async (req, re
 
 });
 
-//charge new OK
-//post body 
-//pour l'utilisateur qui est identifié avec son mail, rechercher un compte avec son nom, puis ajouter une charge
+//POST new charge
+
 router.post('/new', passport.authenticate('jwt', { session: false }), async (req, res) => {
   const { account, charge } = req.body;
+  console.log(account)
   try {
     const data = await User.findById(req.user._id).populate('accounts')
-    if (data.accounts.find(e => e.name == account)) {
-      data.accounts.find(e => e.name == account).charges.push(charge)
-      data.accounts.find(e => e.name == account).save()
-      res.status(200).json({ result: true, data });
+    if (data.accounts.find(e => e.name == account.name)) {
+      data.accounts.find(e => e.name == account.name).charges.push(charge)
+      data.accounts.find(e => e.name == account.name).save()
+      res.status(200).json({ result: true, message:'Nouvelle charge enregistrée' });
     } else {
       res.status(500).json({ result: false, error: "Le compte n'existe pas" });
     }
@@ -41,55 +41,70 @@ router.post('/new', passport.authenticate('jwt', { session: false }), async (req
   }
 });
 
-
-
-//charge update
 router.put('/update', passport.authenticate('jwt', { session: false }), async (req, res) => {
   const { account, oldCharge, updatedCharge } = req.body;
+
   try {
-    const user = await User.findById(req.user._id).populate('accounts')
-    if (user.accounts.find(e => e.name == account[0].name)) {
-      const accountId = (user.accounts.find(e => e.name == account[0].name))._id
-      console.log(accountId)
-      const data = await Account.findById(accountId)
-      const chargeToDelete = data.charges.find(e => e.name == oldCharge.name)
-      const chargeToDeleteId = data.charges.id(chargeToDelete.id)
-      if (chargeToDeleteId){
-        chargeToDeleteId.remove()
-        await data.save()
-      }
-      // data.charges = data.charges.map(e =>
-      //   e.name === oldCharge.name && e = updatedCharge
-      // );
-      
-    } else {
-      res.status(500).json({ result: false, error: "Le compte n'existe pas" });
+    const user = await User.findById(req.user._id).populate('accounts');
+    if (!user) {
+      return res.status(404).json({ result: false, error: "Utilisateur introuvable." });
     }
-  }
-  catch (err) {
+
+    const userAccount = user.accounts.find(e => e.name === account.name);
+    if (!userAccount) {
+      return res.status(404).json({ result: false, error: "Le compte n'existe pas pour cet utilisateur." });
+    }
+
+    const accountData = await Account.findById(userAccount._id);
+    const chargeToUpdate = accountData.charges.find(e => e.name === oldCharge.name);
+    if (!chargeToUpdate) {
+      return res.status(404).json({ result: false, error: "La charge à mettre à jour est introuvable." });
+    }
+
+    accountData.charges.pull(chargeToUpdate);
+
+    accountData.charges.push(updatedCharge);
+
+    await accountData.save();
+
+    res.status(200).json({ result: true, message: "Charge mise à jour avec succès." });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ result: false, error: err.message });
   }
-}
-);
+});
 
 //charge delete
 
-// router.put('/update', passport.authenticate('jwt', { session: false }), async (req, res) => {
-//   const { account, charge } = req.body;
-//   try {
-//     const data = await User.findById(req.user._id).populate('accounts')
-//     if (data.accounts.find(e => e.name == account)) {
-//       data.accounts.find(e => e.name == account).charges.filter(e => e.name !== charge.name)
+router.delete('/delete', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  const { account, oldCharge } = req.body;
 
-//       data.accounts.find(e => e.name == account).save()
-//       res.status(200).json({ result: true, data });
+  try {
+    const user = await User.findById(req.user._id).populate('accounts');
+    if (!user) {
+      return res.status(404).json({ result: false, error: "Utilisateur introuvable." });
+    }
 
-//     } else {
-//       res.status(500).json({ result: false, error: "Le compte n'existe pas" });
-//     }
-//   } catch (err) {
-//     res.status(500).json({ result: false, error: err.message });
-//   }
-// });
+    const userAccount = user.accounts.find(e => e.name === account.name);
+    if (!userAccount) {
+      return res.status(404).json({ result: false, error: "Le compte n'existe pas pour cet utilisateur." });
+    }
+
+    const accountData = await Account.findById(userAccount._id);
+    const chargeToUpdate = accountData.charges.find(e => e.name === oldCharge.name);
+    if (!chargeToUpdate) {
+      return res.status(404).json({ result: false, error: "La charge à mettre à jour est introuvable." });
+    }
+
+    accountData.charges.pull(chargeToUpdate);
+
+    await accountData.save();
+
+    res.status(200).json({ result: true, message: "Charge supprimée avec succès." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ result: false, error: err.message });
+  }
+});
 
 module.exports = router;
