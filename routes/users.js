@@ -53,7 +53,7 @@ router.post('/signin', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).populate('accounts');
     if (!user) {
       return res.status(401).json({result:false, message: 'Email ou mot de passe incorrect' });
     }
@@ -65,7 +65,7 @@ router.post('/signin', async (req, res) => {
 
     const token = jwt.sign({ id: user._id}, SECRET_KEY, { expiresIn: '1h' });
 
-    res.json({result:true, message: 'Connexion réussie', token });
+    res.json({result:true, message: 'Connexion réussie', token, accounts:user.accounts, settings:user.settings });
   } catch (err) {
     res.status(500).json({result:false, message: 'Erreur lors de la connexion', error: err.message });
   }
