@@ -9,7 +9,7 @@ require('dotenv').config();
 //account/new : route pour ajouter un compte bancaire
 router.post('/new', passport.authenticate('jwt', { session: false }) , async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).populate('accounts');
+    const user = await User.findOne({ token: req.user.token }).populate('accounts');
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
@@ -37,7 +37,7 @@ router.post('/new', passport.authenticate('jwt', { session: false }) , async (re
 router.delete('/delete', passport.authenticate('jwt', { session: false }), async (req, res) => {
 
   try {
-    const user = await User.findById(req.user._id).populate('accounts');
+    const user = await User.findOne({ token: req.user.token }).populate('accounts');
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
@@ -45,7 +45,7 @@ router.delete('/delete', passport.authenticate('jwt', { session: false }), async
     console.log(user)
     console.log(account)
     await Account.findByIdAndDelete(account[0]._id);
-    
+
     const accounts = user.accounts.filter(e=>e._id !== account[0]._id)
 
     await User.updateOne({ _id: user._id }, { 
@@ -62,7 +62,7 @@ router.delete('/delete', passport.authenticate('jwt', { session: false }), async
 //acount/update : route pour mettre à jour un compte bancaire
 router.put('/update', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).populate('accounts');
+    const user = await User.findOne({ token: req.user.token }).populate('accounts');
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }

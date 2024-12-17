@@ -6,13 +6,20 @@ require('./config/passport');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const verifyAndRenewTokens = require('./middlewares/verifyAndRenewTokens');
+
+const cors = require('cors');
+
+var app = express();
+
+app.use(cors());
+
+app.use(verifyAndRenewTokens);
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var accountsRouter = require('./routes/accounts');
 var chargesRouter = require('./routes/charges');
-
-var app = express();
 
 app.use(logger('dev'));
 app.use(express.json());

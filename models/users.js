@@ -1,13 +1,12 @@
 const mongoose = require('mongoose');
 
-const userSchema = mongoose.Schema({
-    email: String,
-    password:String,
-    google_credentials: String,
+const userSchema = new mongoose.Schema({
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    token: { type: String, unique: true },
     settings: Object,
-    token: String,
-    accounts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'accounts', }]
-});
+    accounts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'accounts' }],
+  });
 
 const User = mongoose.model('users', userSchema);
 
