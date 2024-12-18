@@ -117,19 +117,19 @@ router.post('/change-password', passport.authenticate('jwt', { session: false })
 
     const user = await User.findOne({ token });
     if (!user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+      return res.status(404).json({ result:false, message: 'Utilisateur non trouvé' });
     }
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Mot de passe actuel incorrect' });
+      return res.status(401).json({ result:false, message: 'Mot de passe actuel incorrect' });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
     await user.save();
 
-    res.status(200).json({ message: 'Mot de passe modifié avec succès' });
+    res.status(200).json({result:true, message: 'Mot de passe modifié avec succès' });
   } catch (err) {
     res.status(500).json({
       message: 'Erreur lors de la modification du mot de passe',
