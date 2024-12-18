@@ -94,14 +94,14 @@ router.delete('/delete-account', passport.authenticate('jwt', { session: false }
     const user = await User.findOne({ token });
 
     if (!user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+      return res.status(404).json({ result:false, message: 'Utilisateur non trouvé' });
     }
 
     await User.deleteOne({ _id: user._id });
 
-    res.status(200).json({ message: 'Compte supprimé avec succès' });
+    res.status(200).json({result:true, message: 'Compte supprimé avec succès' });
   } catch (err) {
-    res.status(500).json({ message: 'Erreur lors de la suppression du compte', error: err.message });
+    res.status(500).json({result:false, message: 'Erreur lors de la suppression du compte', error: err.message });
   }
 });
 
