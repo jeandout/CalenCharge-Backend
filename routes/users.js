@@ -10,6 +10,19 @@ require('dotenv').config();
 const router = express.Router();
 const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
+
+//mailgun
+const formData = require('form-data');
+const Mailgun = require('mailgun.js');
+
+const mailgun = new Mailgun(formData);
+
+const mg = mailgun.client({
+  username: 'api',
+  key: process.env.MG_API_KEY,
+  url: 'https://api.eu.mailgun.net',
+});
+
 // Route d'inscription (sign-up)
 router.post('/signup', async (req, res) => {
   const { email, password, store } = req.body;
@@ -44,7 +57,7 @@ router.post('/signup', async (req, res) => {
     });
     await newUser.save();
 
-    const jwtToken = jwt.sign({ token: newUser.token }, SECRET_KEY, { expiresIn: '1m' });
+    const jwtToken = jwt.sign({ token: newUser.token }, SECRET_KEY, { expiresIn: '15d' });
 
     res.status(201).json({
       result: true,
@@ -71,7 +84,7 @@ router.post('/signin', async (req, res) => {
       return res.status(401).json({ result: false, message: 'Email ou mot de passe incorrect' });
     }
 
-    const jwtToken = jwt.sign({ token: user.token }, SECRET_KEY, { expiresIn: '1m' });
+    const jwtToken = jwt.sign({ token: user.token }, SECRET_KEY, { expiresIn: '15d' });
 
     res.json({
       result: true,
@@ -137,5 +150,63 @@ router.post('/change-password', passport.authenticate('jwt', { session: false })
     });
   }
 });
+
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        result: false,
+        message: 'Veuillez fournir une adresse e-mail.',
+      });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        result: false,
+        message: 'Aucun utilisateur trouvé avec cette adresse e-mail.',
+      });
+    }
+
+    const newPassword = generateRandomPassword(12);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    const data = {
+      from: 'noreply@calencharge.fr',
+      to: email,
+      subject: 'Réinitialisation de votre mot de passe',
+      text: `Bonjour,\n\nVotre nouveau mot de passe est : ${newPassword}\n\nVeuillez le changer dans les paramètres de l'application dès votre prochaine connexion.\n\nCordialement,\nL'équipe CalenCharge.`,
+    };
+
+    await mg.messages.create(process.env.MG_DOMAIN, data);
+
+    res.status(200).json({
+      result: true,
+      message: 'Un nouvel e-mail avec le mot de passe a été envoyé.',
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      result: false,
+      message: 'Erreur lors de la réinitialisation du mot de passe.',
+      error: err.message,
+    });
+  }
+});
+
+function generateRandomPassword(length) {
+  const chars =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$&!';
+  let password = '';
+  for (let i = 0; i < length; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+}
 
 module.exports = router;

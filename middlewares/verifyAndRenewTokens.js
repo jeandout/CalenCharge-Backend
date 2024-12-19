@@ -5,7 +5,7 @@ require('dotenv').config();
 const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 const verifyAndRenewTokens = async (req, res, next) => {
-  if (req.path === '/users/signin' || req.path === '/users/signup') {
+  if (req.path === '/users/signin' || req.path === '/users/signup' || req.path === '/users/reset-password') {
     return next();
   }
 
